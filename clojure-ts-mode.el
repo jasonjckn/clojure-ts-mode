@@ -180,6 +180,7 @@ Only intended for use at development time.")
                "case" "comment" "cond" "cond->" "cond->>" "condp"
                "declare" "def" "definline" "definterface" "defmacro" "defmethod"
                "defmulti" "defn" "defn-" "defonce" "defprotocol" "defrecord"
+               ">defn" ">defn-"
                "defstruct" "deftype"
                "delay" "doall" "dorun" "doseq" "dosync" "dotimes" "doto"
                "extend-protocol" "extend-type"
@@ -211,6 +212,19 @@ Only intended for use at development time.")
 (defun clojure-ts-symbol-regexp (symbols)
   "Return a regular expression that matches one of SYMBOLS exactly."
   (concat "^" (regexp-opt symbols) "$"))
+(defconst clojure-ts--definition-keyword-regexp
+  (rx
+   line-start
+   (or (group (or "ns" "fn"))
+       (group ">def"
+              (+ (or alnum
+                     ;; What are valid characters for symbols? is a negative match better?
+                     "-" "_" "!" "@" "#" "$" "%" "^" "&" "*" "|" "?" "<" ">" "+" "=" ":")))
+       (group "def"
+              (+ (or alnum
+                     ;; What are valid characters for symbols? is a negative match better?
+                     "-" "_" "!" "@" "#" "$" "%" "^" "&" "*" "|" "?" "<" ">" "+" "=" ":"))))
+   line-end))
 
 (defvar clojure-ts-function-docstring-symbols
   '("definline"
@@ -218,6 +232,8 @@ Only intended for use at development time.")
     "defmacro"
     "defn"
     "defn-"
+    ">defn"
+    ">defn-"
     "defprotocol"
     "ns")
   "Symbols that accept an optional docstring as their second argument.")
@@ -282,6 +298,7 @@ if a third argument (the value) is provided.
      ;; Naming another regex is very cumbersome.
      (:match ,(clojure-ts-symbol-regexp
                '("def" "defonce" "defn" "defn-" "defmacro" "ns"
+                 ">defn" ">defn-"
                  "defmulti" "definterface" "defprotocol"
                  "deftest" "deftest-"
                  "deftype" "defrecord" "defstruct"))
@@ -376,6 +393,8 @@ with the markdown_inline grammar."
                        (or
                         "defn"
                         "defn-"
+                        ">defn"
+                        ">defn-"
                         "defmulti"
                         "defmethod"
                         "deftest"
@@ -578,7 +597,7 @@ Can be called directly, but intended for use as `treesit-defun-name-function'."
             (treesit-node-text name)))))))
 
 (defvar clojure-ts--function-type-regexp
-  (rx string-start (or (seq "defn" (opt "-")) "defmethod") string-end)
+  (rx string-start (or (seq (opt ">") "defn" (opt "-")) "defmethod") string-end)
   "Regular expression for matching definition nodes that resemble functions.")
 
 (defun clojure-ts--function-node-p (node)
@@ -691,6 +710,7 @@ The possible values for this variable are
          ;; we also explicitly do not match symbols beginning with
          ;; "default" "deflate" and "defer", like cljfmt
          (and line-start "def")
+         (and line-start ">def")
          ;; Match with-* symbols
          (and line-start "with-")
          ;; Exact matches
