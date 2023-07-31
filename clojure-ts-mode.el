@@ -236,6 +236,7 @@ Only intended for use at development time.")
                "case" "comment" "cond" "cond->" "cond->>" "condp"
                "declare" "def" "definline" "definterface" "defmacro" "defmethod"
                "defmulti" "defn" "defn-" "defonce" "defprotocol" "defrecord"
+               ">defn" ">defn-"
                "defstruct" "deftype"
                "delay" "doall" "dorun" "doseq" "dosync" "dotimes" "doto"
                "extend-protocol" "extend-type"
@@ -267,6 +268,19 @@ Only intended for use at development time.")
 (defun clojure-ts-symbol-regexp (symbols)
   "Return a regular expression that matches one of SYMBOLS exactly."
   (concat "^" (regexp-opt symbols) "$"))
+(defconst clojure-ts--definition-keyword-regexp
+  (rx
+   line-start
+   (or (group (or "ns" "fn"))
+       (group ">def"
+              (+ (or alnum
+                     ;; What are valid characters for symbols? is a negative match better?
+                     "-" "_" "!" "@" "#" "$" "%" "^" "&" "*" "|" "?" "<" ">" "+" "=" ":")))
+       (group "def"
+              (+ (or alnum
+                     ;; What are valid characters for symbols? is a negative match better?
+                     "-" "_" "!" "@" "#" "$" "%" "^" "&" "*" "|" "?" "<" ">" "+" "=" ":"))))
+   line-end))
 
 (defvar clojure-ts-function-docstring-symbols
   '("definline"
@@ -274,6 +288,8 @@ Only intended for use at development time.")
     "defmacro"
     "defn"
     "defn-"
+    ">defn"
+    ">defn-"
     "defprotocol"
     "ns")
   "Symbols that accept an optional docstring as their second argument.")
@@ -339,6 +355,7 @@ if a third argument (the value) is provided.
      ;; Naming another regex is very cumbersome.
      (:match ,(clojure-ts-symbol-regexp
                '("def" "defonce" "defn" "defn-" "defmacro" "ns"
+                 ">defn" ">defn-"
                  "defmulti" "definterface" "defprotocol"
                  "deftest" "deftest-"
                  "deftype" "defrecord" "defstruct"))
@@ -349,6 +366,8 @@ if a third argument (the value) is provided.
                :anchor (sym_lit) @_def_symbol
                :anchor (comment) :?
                :anchor (sym_lit) ; function_name
+               :anchor (kwd_lit) :? ; :-
+               :anchor (_) :? ; the malli spec
                :anchor (comment) :?
                :anchor (str_lit) ,capture-symbol)
      (:match ,(clojure-ts-symbol-regexp clojure-ts-function-docstring-symbols)
@@ -443,6 +462,8 @@ with the markdown_inline grammar."
                         "fn"
                         "defn"
                         "defn-"
+                        ">defn"
+                        ">defn-"
                         "defmulti"
                         "defmethod"
                         "deftest"
@@ -458,12 +479,12 @@ with the markdown_inline grammar."
         ((sym_lit name: (sym_name) @def)
          ((:match ,(rx-to-string
                     `(seq bol
-                          (or
-                           "defrecord"
-                           "definterface"
-                           "deftype"
-                           "defprotocol")
-                          eol))
+                      (or
+                       "defrecord"
+                       "definterface"
+                       "deftype"
+                       "defprotocol")
+                      eol))
                   @def)))
         :anchor
         (sym_lit (sym_name) @font-lock-type-face)
@@ -522,7 +543,7 @@ with the markdown_inline grammar."
     :language 'clojure
     :override t
     '((tagged_or_ctor_lit marker: "#" @font-lock-preprocessor-face
-                          tag: (sym_lit) @font-lock-preprocessor-face))
+       tag: (sym_lit) @font-lock-preprocessor-face))
 
     :feature 'doc
     :language 'clojure
@@ -684,7 +705,7 @@ Can be called directly, but intended for use as `treesit-defun-name-function'."
             (treesit-node-text name)))))))
 
 (defvar clojure-ts--function-type-regexp
-  (rx string-start (or (seq "defn" (opt "-")) "defmethod" "deftest") string-end)
+  (rx string-start (or (seq (opt ">") "defn" (opt "-")) "defmethod") string-end)
   "Regular expression for matching definition nodes that resemble functions.")
 
 (defun clojure-ts--function-node-p (node)
@@ -765,7 +786,7 @@ The possible values for this variable are
   :safe #'symbolp
   :type
   '(choice (const :tag "Semantic indentation rules." semantic)
-           (const :tag "Simple fixed indentation rules." fixed))
+    (const :tag "Simple fixed indentation rules." fixed))
   :package-version '(clojure-ts-mode . "0.2.0"))
 
 (defvar clojure-ts--fixed-indent-rules
@@ -851,6 +872,8 @@ The possible values for this variable are
     ("defmulti"        . ((:inner 0)))
     ("defn"            . ((:inner 0)))
     ("defn-"           . ((:inner 0)))
+    (">defn"           . ((:inner 0)))
+    (">defn-"          . ((:inner 0)))
     ("defonce"         . ((:inner 0)))
     ("deftest"         . ((:inner 0)))
     ("fdef"            . ((:inner 0)))
@@ -1229,7 +1252,7 @@ If JUSTIFY is non-nil, justify as well as fill the paragraph."
 
 (defconst clojure-ts-grammar-recipes
   '((clojure "https://github.com/sogaiu/tree-sitter-clojure.git"
-             "v0.0.12")
+     "v0.0.12")
     (markdown_inline "https://github.com/MDeiml/tree-sitter-markdown"
                      "v0.1.6"
                      "tree-sitter-markdown-inline/src"))
