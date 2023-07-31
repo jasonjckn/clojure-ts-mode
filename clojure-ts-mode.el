@@ -239,6 +239,10 @@ Only intended for use at development time.")
   (rx
    line-start
    (or (group (or "ns" "fn"))
+       (group ">def"
+              (+ (or alnum
+                     ;; What are valid characters for symbols? is a negative match better?
+                     "-" "_" "!" "@" "#" "$" "%" "^" "&" "*" "|" "?" "<" ">" "+" "=" ":")))
        (group "def"
               (+ (or alnum
                      ;; What are valid characters for symbols? is a negative match better?
@@ -459,7 +463,7 @@ Can be called directly, but intended for use as `treesit-defun-name-function'."
             (treesit-node-text name)))))))
 
 (defvar clojure-ts--function-type-regexp
-  (rx string-start (or "defn" "defmethod") string-end)
+  (rx string-start (or "defn" "defn-" "defmethod" ">defn" ">defn-") string-end)
   "Regular expression for matching definition nodes that resemble functions.")
 
 (defun clojure-ts--function-node-p (node)
