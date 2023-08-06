@@ -682,15 +682,6 @@ See `treesit-simple-indent-rules'."
           clojure-ts--threading-macro
           first-child))))
 
-;; TODO submit change to clojure style guide about threading macro arg
-;; alignement when first argument is NOT on the same line as the
-;; Threading symbol
-;; (->>
-;;  a
-;;  b
-;;  c)
-;; If we align 0 to prev-sibling (like cljfmt) this calculation is not needed,
-;; instead always 0.
 (defun clojure-ts--threading-macro-arg-offset (node _parent _bol)
   "Calculates the indentation offset for NODE, a threading macro argument."
   (if (and node (<= (treesit-node-index node t) 1))
@@ -703,9 +694,7 @@ See `treesit-simple-indent-rules'."
      ;; https://guide.clojure.style/#body-indentation
      (clojure-ts--match-expression-in-body parent 2)
      ;; https://guide.clojure.style/#threading-macros-alignment
-     (clojure-ts--match-threading-macro-arg
-      prev-sibling
-      clojure-ts--threading-macro-arg-offset)
+     (clojure-ts--match-threading-macro-arg prev-sibling 0)
      ;; https://guide.clojure.style/#vertically-align-fn-args
      (clojure-ts--match-function-call-arg (nth-sibling 2 nil) 0)
      ;; Literal Sequences
