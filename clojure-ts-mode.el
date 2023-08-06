@@ -688,6 +688,19 @@ See `treesit-simple-indent-rules'."
       1 ;; NODE is the first arg, offset 1 from start of *->> symbol
     0)) ;; arg 2...n, match indentation of the previous argument
 
+;; https://github.com/weavejester/cljfmt/blob/master/docs/INDENTS.md
+;; Default values: https://github.com/weavejester/cljfmt/tree/master/cljfmt/resources/cljfmt/indents
+;;   Something missing in these indent rules are the cljfmt values for things like deftype/record/protocol, extend-type/protocol, proxy, reify, things like that.
+;; These use the following language:
+;; 1. Default:
+;;    - If there is one or fewer elements on the first line it indents by one space
+;;    - If there is more than one element it indents to the level of the second element:
+;; 2. Inner:
+;;    indentation always indents by two spaces on every line after the first, regardless of how many elements there are
+;; 3. Block:
+;;    A mix of the two. It behaves according to the default rules up to a particular index. If the argument with that index is the first element in a line, it switches to use inner indentation
+;;    - If the argument 0, the first argument, is at the start of a line, it uses inner indentation: a constant 2 spaces for each line.
+;;    - However, if argument 0 does not begin a line, the default indentation is used:
 (defvar clojure-ts--cljfmt-indent-rules
   `((clojure
      ((parent-is "source") parent-bol 0)
