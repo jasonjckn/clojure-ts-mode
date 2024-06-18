@@ -279,8 +279,6 @@ if a third argument (the value) is provided.
     ((list_lit :anchor (sym_lit) @_def_symbol
                :anchor (comment) :?
                :anchor (sym_lit) ; variable name
-               :anchor (kwd_lit) :? ; :-
-               :anchor (_) :? ; the malli spec
                :anchor (comment) :?
                :anchor (str_lit) ,capture-symbol
                :anchor (_)) ; the variable's value
