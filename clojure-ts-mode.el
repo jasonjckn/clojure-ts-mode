@@ -279,6 +279,8 @@ if a third argument (the value) is provided.
     ((list_lit :anchor (sym_lit) @_def_symbol
                :anchor (comment) :?
                :anchor (sym_lit) ; variable name
+               :anchor (kwd_lit) :? ; :-
+               :anchor (_) :? ; the malli spec
                :anchor (comment) :?
                :anchor (str_lit) ,capture-symbol
                :anchor (_)) ; the variable's value
@@ -387,21 +389,21 @@ with the markdown_inline grammar."
     :feature 'definition ;; defn and defn like macros
     :language 'clojure
     `(((list_lit :anchor (sym_lit (sym_name) @def)
-                 :anchor (sym_lit (sym_name) @font-lock-function-name-face))
+        :anchor (sym_lit (sym_name) @font-lock-function-name-face))
        (:match ,(rx-to-string
                  `(seq bol
-                       (or
-                        "defn"
-                        "defn-"
-                        ">defn"
-                        ">defn-"
-                        "defmulti"
-                        "defmethod"
-                        "deftest"
-                        "deftest-"
-                        "defmacro"
-                        "definline")
-                       eol))
+                   (or
+                    "defn"
+                    "defn-"
+                    ">defn"
+                    ">defn-"
+                    "defmulti"
+                    "defmethod"
+                    "deftest"
+                    "deftest-"
+                    "defmacro"
+                    "definline")
+                   eol))
                @def))
       ((anon_fn_lit
         marker: "#" @font-lock-property-face))
@@ -410,12 +412,12 @@ with the markdown_inline grammar."
         ((sym_lit name: (sym_name) @def)
          ((:match ,(rx-to-string
                     `(seq bol
-                          (or
-                           "defrecord"
-                           "definterface"
-                           "deftype"
-                           "defprotocol")
-                          eol))
+                      (or
+                       "defrecord"
+                       "definterface"
+                       "deftype"
+                       "defprotocol")
+                      eol))
                   @def)))
         :anchor
         (sym_lit (sym_name) @font-lock-type-face)
@@ -430,7 +432,7 @@ with the markdown_inline grammar."
     :feature 'variable ;; def, defonce
     :language 'clojure
     `(((list_lit :anchor (sym_lit (sym_name) @def)
-                 :anchor (sym_lit (sym_name) @font-lock-variable-name-face))
+        :anchor (sym_lit (sym_name) @font-lock-variable-name-face))
        (:match ,clojure-ts--variable-definition-symbol-regexp @def)))
 
     ;; Can we support declarations in the namespace form?
@@ -466,7 +468,7 @@ with the markdown_inline grammar."
     :language 'clojure
     :override t
     '((tagged_or_ctor_lit marker: "#" @font-lock-preprocessor-face
-                          tag: (sym_lit) @font-lock-preprocessor-face))
+       tag: (sym_lit) @font-lock-preprocessor-face))
 
     :feature 'doc
     :language 'clojure
@@ -678,7 +680,7 @@ The possible values for this variable are
   :safe #'symbolp
   :type
   '(choice (const :tag "Semantic indentation rules." semantic)
-           (const :tag "Simple fixed indentation rules." fixed))
+    (const :tag "Simple fixed indentation rules." fixed))
   :package-version '(clojure-ts-mode . "0.2.0"))
 
 (defvar clojure-ts--fixed-indent-rules
@@ -909,7 +911,7 @@ forms like deftype, defrecord, reify, proxy, etc."
 
 (defconst clojure-ts-grammar-recipes
   '((clojure "https://github.com/sogaiu/tree-sitter-clojure.git"
-             "v0.0.12")
+     "v0.0.12")
     (markdown_inline "https://github.com/MDeiml/tree-sitter-markdown"
                      "v0.1.6"
                      "tree-sitter-markdown-inline/src"))
