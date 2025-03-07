@@ -735,7 +735,7 @@ The possible values for this variable are
   :type
   '(choice (const :tag "Semantic indentation rules." semantic)
     (const :tag "Simple fixed indentation rules." fixed))
-  :package-version '(clojure-ts-mode . "0.2.0"))
+  :package-version '(clojure-ts-mode . "0.2.3"))
 
 (defvar clojure-ts--fixed-indent-rules
   ;; This is in contrast to semantic
