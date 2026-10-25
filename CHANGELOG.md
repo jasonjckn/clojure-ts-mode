@@ -17,6 +17,7 @@
 - Fix indentation of a form on the line after its reader prefix (`'`, `` ` ``, `~`, `~@`, `@`, `#'`, `#=`), which no rule matched.
 - Align `clojure.test/are` like `are`: `clojure-ts-align-cond-forms` listed `clojure.core/are`, which doesn't exist.
 - Fix `indent-region` leaving the forms at the end of the region unaligned when indenting makes the text longer.
+- Respect changes to `clojure-ts-align-binding-forms` and `clojure-ts-align-cond-forms` made after loading, including buffer-local ones from `.dir-locals.el`: the query was compiled only once, when the package loaded.
 
 ## 0.6.0 (2025-12-02)
 
