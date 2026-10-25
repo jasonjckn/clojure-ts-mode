@@ -1205,12 +1205,14 @@ The possible values for this variable are
   (rx bol (or "quoting_lit" "syn_quoting_lit" "unquoting_lit" "unquote_splicing_lit"
               "derefing_lit" "var_quoting_lit" "evaling_lit")
       eol)
-  "Node types of a form behind a reader prefix: \=' \=` ~ ~@ @ #\=' #=.")
+  "Node types of a form behind a reader prefix.
+These are quote, syntax quote, unquote, unquote-splicing, deref, var
+quote and read-eval.")
 
 (defun clojure-ts--prefixed-form-indent (prefixed)
   "Return (ANCHOR . OFFSET) for PREFIXED as if it started a line.
 
-PREFIXED is a node like \='form or @form.  When the form itself starts
+PREFIXED is a node like @form.  When the form itself starts
 on the line after the prefix, it is indented the way PREFIXED would be."
   (treesit-simple-indent prefixed
                          (treesit-node-parent prefixed)
@@ -2026,13 +2028,15 @@ between BEG and END."
 Forms between BEG and END are aligned according to
 `clojure-ts-align-forms-automatically'."
   ;; Indenting adds whitespace, which moves END: align up to where the region
-  ;; ends afterwards.
-  (let ((end (copy-marker end)))
-    (prog1 (let ((indent-region-function #'treesit-indent-region))
-             (indent-region beg end))
-      (when clojure-ts-align-forms-automatically
-        (clojure-ts-align beg end)))
-    (set-marker end nil)))
+  ;; ends afterwards.  Treesit functions take only integer positions in
+  ;; Emacs 30.1, so the marker is turned back into one.
+  (let ((end-marker (copy-marker end)))
+    (unwind-protect
+        (prog1 (let ((indent-region-function #'treesit-indent-region))
+                 (indent-region beg end))
+          (when clojure-ts-align-forms-automatically
+            (clojure-ts-align beg (marker-position end-marker))))
+      (set-marker end-marker nil))))
 
 ;;; Refactoring
 
