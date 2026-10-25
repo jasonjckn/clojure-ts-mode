@@ -2007,10 +2007,13 @@ between BEG and END."
 
 Forms between BEG and END are aligned according to
 `clojure-ts-align-forms-automatically'."
-  (prog1 (let ((indent-region-function #'treesit-indent-region))
-           (indent-region beg end))
-    (when clojure-ts-align-forms-automatically
-      (clojure-ts-align beg end))))
+  ;; Indenting adds whitespace, which moves END; align up to where the region ends afterwards.
+  (let ((end (copy-marker end)))
+    (prog1 (let ((indent-region-function #'treesit-indent-region))
+             (indent-region beg end))
+      (when clojure-ts-align-forms-automatically
+        (clojure-ts-align beg end)))
+    (set-marker end nil)))
 
 ;;; Refactoring
 

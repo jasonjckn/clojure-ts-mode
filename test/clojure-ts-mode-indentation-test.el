@@ -991,6 +991,17 @@ b |20])"
  :b {:a  :a
      :aa :a}}")
 
+  (it "should align the last form when reindenting makes the text longer"
+    ;; Indenting adds whitespace to the first forms, which moves the end of the region past
+    ;; where it was, so the last form has to be aligned from the moved end.
+    ;; The mode reads `clojure-ts-align-forms-automatically' when it starts, so bind it first.
+    (let ((clojure-ts-align-forms-automatically t))
+      (with-temp-buffer
+        (clojure-ts-mode)
+        (insert "(let [a 1\nbbbbbb 2\n{:keys [c]} x]\nc)\n(cond\n(= a 1) :one\n(= bbbbbb 22222) :two\n:else :other)\n(condp = x\n1 :one\n222 :two)\n(case x\n:a 1\n:bbbbb 2)")
+        (indent-region (point-min) (point-max))
+        (should (equal (buffer-string) "(let [a           1\n      bbbbbb      2\n      {:keys [c]} x]\n  c)\n(cond\n  (= a 1)          :one\n  (= bbbbbb 22222) :two\n  :else            :other)\n(condp = x\n  1   :one\n  222 :two)\n(case x\n  :a     1\n  :bbbbb 2)")))))
+
   (when-aligning-it "should handle trailing commas"
     "
 {:a {:a  :a,

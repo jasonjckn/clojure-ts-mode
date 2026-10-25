@@ -16,6 +16,7 @@
 - Fix semantic indentation of `:block` forms (`let`, `doto`, `condp`, ...) when metadata or a comment comes before an argument.
 - Fix indentation of a form on the line after its reader prefix (`'`, `` ` ``, `~`, `~@`, `@`, `#'`, `#=`), which no rule matched.
 - Align `clojure.test/are` like `are`: `clojure-ts-align-cond-forms` listed `clojure.core/are`, which doesn't exist.
+- Fix `indent-region` leaving the forms at the end of the region unaligned when indenting makes the text longer.
 
 ## 0.6.0 (2025-12-02)
 
