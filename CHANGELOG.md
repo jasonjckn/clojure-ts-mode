@@ -12,6 +12,7 @@
 - Fix missing builtin symbols in font-lock regexp.
 - Improve performance for imenu, font-lock and indentation.
 - Improve performance for `clojure-ts-align` by caching indentation rules.
+- Fix indentation of threading macro arguments after a line with several forms, a trailing comment or a multi-line form.
 
 ## 0.6.0 (2025-12-02)
 
