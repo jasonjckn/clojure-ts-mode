@@ -14,6 +14,7 @@
 - Improve performance for `clojure-ts-align` by caching indentation rules.
 - Fix indentation of threading macro arguments after a line with several forms, a trailing comment or a multi-line form.
 - Fix semantic indentation of `:block` forms (`let`, `doto`, `condp`, ...) when metadata or a comment comes before an argument.
+- Fix indentation of a form on the line after its reader prefix (`'`, `` ` ``, `~`, `~@`, `@`, `#'`, `#=`), which no rule matched.
 
 ## 0.6.0 (2025-12-02)
 

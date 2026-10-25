@@ -692,6 +692,30 @@ DESCRIPTION is a string with the description of the spec."
 (condp = ;; compare
        (str x)
   \"a\" 1)")
+  (it "should indent a form on the line after its reader prefix"
+    ;; No rule used to match these lines, so they kept whatever indentation
+    ;; they had.  Start from no indentation at all.
+    (dolist (expected '("
+(def table
+  ['
+   [identity int? pos-int?]
+   [0 true false]])"
+                        "
+`(let [y# ~
+       x]
+   y#)"
+                        "
+(swap! state assoc :n @
+       (:counter state))"
+                        "
+{:get #'
+ handle-get}"
+                        "
+(def q '
+  (a b c))"))
+      (with-clojure-ts-buffer (replace-regexp-in-string "\n +" "\n" expected)
+        (indent-region (point-min) (point-max))
+        (expect (buffer-string) :to-equal expected))))
 
   (it "should pick up dynamic indentation rules from clojure-ts-get-indent-function"
     (with-clojure-ts-buffer "
@@ -751,6 +775,20 @@ DESCRIPTION is a string with the description of the spec."
   (:import
    (java.util Date
      UUID)))")
+
+  (it "should indent a form on the line after its reader prefix in fixed style"
+    (dolist (expected '("
+(swap! state assoc :n @
+  (:counter state))"
+                        "
+['
+ [a b]]"))
+      (with-temp-buffer
+        (let ((clojure-ts-indent-style 'fixed))
+          (clojure-ts-mode)
+          (insert (replace-regexp-in-string "\n +" "\n" expected))
+          (indent-region (point-min) (point-max))
+          (expect (buffer-string) :to-equal expected)))))
 
   (when-indenting-fixed-it "should indent namespaced maps correctly"
     "
