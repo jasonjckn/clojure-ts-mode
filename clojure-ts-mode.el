@@ -2025,7 +2025,8 @@ between BEG and END."
 
 Forms between BEG and END are aligned according to
 `clojure-ts-align-forms-automatically'."
-  ;; Indenting adds whitespace, which moves END; align up to where the region ends afterwards.
+  ;; Indenting adds whitespace, which moves END: align up to where the region
+  ;; ends afterwards.
   (let ((end (copy-marker end)))
     (prog1 (let ((indent-region-function #'treesit-indent-region))
              (indent-region beg end))
