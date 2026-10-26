@@ -18,6 +18,7 @@
 - Align `clojure.test/are` like `are`: `clojure-ts-align-cond-forms` listed `clojure.core/are`, which doesn't exist.
 - Fix `indent-region` leaving the forms at the end of the region unaligned when indenting makes the text longer.
 - Respect changes to `clojure-ts-align-binding-forms` and `clojure-ts-align-cond-forms` made after loading, including buffer-local ones from `.dir-locals.el`: the query was compiled only once, when the package loaded.
+- Highlight forms in `clojure-ts-extra-def-forms` as keywords at `treesit-font-lock-level` 4, where the `function` feature colored them as function calls.
 
 ## 0.6.0 (2025-12-02)
 
